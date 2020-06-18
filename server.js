@@ -5,7 +5,7 @@ let express = require('express'),
   dbConfig = require('./database/db');
 
 // Routes to Handle Request
-const userRoute = require('../backend/routes/user.route')
+const userRoute = require('./routes/user.route')
 
 // MongoDB Setup
 mongoose.Promise = global.Promise;

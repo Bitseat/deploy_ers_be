@@ -85,7 +85,7 @@ router.post('/create-user', upload.array('avatar', 6), (req, res, next) => {
   
 
   async function runScript() {
-    const { stdout, stderr } = await exec('python3' + ' ' + path.join(__dirname, '../extract_resume_info4.py'));
+    const { stdout, stderr } = await exec('python3' + ' ' + path.join(__dirname, '../extract_resume_info.py'));
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
   }
