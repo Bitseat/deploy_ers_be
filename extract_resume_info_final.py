@@ -30,7 +30,7 @@ def main():
     # import resumes from directory
     directory = 'resumes/'
     dir_list = os.listdir(directory)
-    dir_list.sort(key=lambda f: os.path.splitext(f)[1], reverse = True)
+    #dir_list.sort(key=lambda f: os.path.splitext(f)[1], reverse = True)
  
 
     for filename in dir_list:
@@ -72,10 +72,12 @@ def main():
 
 
 def extract_info(full_path):
-
+    directory = 'resumes/' 
     directory2 = 'jsons/'
+    directory3 = 'pdfs/' 
     data = {}
     with open(full_path, 'r') as f:
+        print(full_path)
 
         data = ResumeParser(full_path).get_extracted_data()
         z = full_path.replace('resumes/','')
@@ -84,32 +86,49 @@ def extract_info(full_path):
         
         clean_data = re.sub('\u2013', '', str(data))
         clean_data = re.sub('\uf0b7', '', clean_data)
+        clean_data = re.sub('\u200b', '', clean_data)
         clean_data = re.sub(r'\\uf0b7', '', clean_data)
         clean_data = re.sub(r'[^\x00-\x7F]+|\x0c',' ', clean_data)
         clean_data = re.sub(r"'", '"', clean_data)
         clean_data = re.sub(r'None', 'null', clean_data)
         clean_data = json.loads(clean_data.replace("\'", '"'))
         
-        
-    with open(json_file_name, 'w') as outfile:
-        json.dump(clean_data, outfile)
-    if full_path.endswith(".jpg.docx"):
-        os.remove(full_path)
-    
+        jpg_file_name = str(directory2) + str(z[:-5]) + ".json"
+        pdf_file_name = str(full_path[:-9]) + ".pdf"
+        l = pdf_file_name.replace('resumes/','')
+        word_file_name = str(full_path[:-5]) + ".pdf"
+        m = word_file_name.replace('resumes/','')
+        if full_path.endswith(".jpg.docx"):
+            with open(jpg_file_name, 'w') as outfile:
+                json.dump(clean_data, outfile)
+            shutil.move(str(pdf_file_name), os.path.join(directory3, str(l)))
+            os.remove(full_path)
+            os.remove(str(full_path[:-5]))
+
+        elif full_path.endswith(".pdf"):
+            with open(json_file_name, 'w') as outfile:
+                json.dump(clean_data, outfile)
+
+            shutil.move(os.path.join(directory, str(z)), os.path.join(directory3, str(z)))
+        elif full_path.endswith(".docx"):
+            with open(json_file_name, 'w') as outfile:
+                json.dump(clean_data, outfile)
+            shutil.move(str(full_path), os.path.join(directory3, str(m)))
+
+            os.remove(word_file_name)
+
+        else:
+            with open(json_file_name, 'w') as outfile:
+                json.dump(clean_data, outfile)
+            os.remove(full_path)
 
 
-    movefiles()
-
-
-def movefiles():
-    directory = 'resumes/' 
-    directory3 = 'pdfs/' 
-    for fname in os.listdir(directory):
-        if fname.lower().endswith('.pdf'):
-            shutil.move(os.path.join(directory, fname), os.path.join(directory3, fname))
-        
-      
-            
- 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+

@@ -85,7 +85,7 @@ router.post('/create-user', upload.array('avatar', 6), (req, res, next) => {
   
 
   async function runScript() {
-    const { stdout, stderr } = await exec('python3' + ' ' + path.join(__dirname, '../extract_resume_info.py'));
+    const { stdout, stderr } = await exec('python3' + ' ' + path.join(__dirname, '../extract_resume_info_final.py'));
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
   }
@@ -153,7 +153,8 @@ router.post('/create-user', upload.array('avatar', 6), (req, res, next) => {
     var uploaded_file_name = req.files[i].filename
     console.log(uploaded_file_name)
     console.log(uploaded_file_name.slice(0,uploaded_file_name.lastIndexOf('.')));
-    var new_avatar = (url + '/pdfs/' + uploaded_file_name.slice(0,uploaded_file_name.lastIndexOf('.')) + '.pdf')
+    // var new_avatar = (url + '/pdfs/' + uploaded_file_name.slice(0,uploaded_file_name.lastIndexOf('.')) + '.pdf')
+    //var new_avatar = (path.resolve(__dirname, '../pdfs/'+uploaded_file_name.slice(0,uploaded_file_name.lastIndexOf('.'))+'.pdf'))
     let rawdata
 
 
@@ -164,6 +165,7 @@ router.post('/create-user', upload.array('avatar', 6), (req, res, next) => {
   
     else {
         rawdata = fs.readFileSync(path.resolve(__dirname, '../jsons/'+uploaded_file_name+'.json'));
+        var new_avatar = (url + '/pdfs/' + uploaded_file_name.slice(0,uploaded_file_name.lastIndexOf('.')) + '.pdf')
         let applicant = JSON.parse(rawdata);
         console.log(applicant['name']);
     
@@ -211,14 +213,32 @@ router.post('/create-user', upload.array('avatar', 6), (req, res, next) => {
 
   }
 
-router.get("/", (req, res, next) => {
-  User.find().then(data => {
-    res.status(200).json({
-      message: "User list retrieved successfully!",
-      users: data
+// router.get("/", (req, res, next) => {
+//   User.find().then(data => {
+//     res.status(200).json({
+//       message: "User list retrieved successfully!",
+//       users: data
+//     });
+//   });
+// });
+
+
+router.get("/", async (req, res, next) => {
+  try {
+  //listing messages in users mailbox 
+    User.find().then(data => {
+      res.status(200).json({
+        message: "User list retrieved successfully!",
+        users: data
+      });
     });
-  });
-});
+  } catch (err) {
+    next(err);
+  }
+})
+
+
+
 
 })
 
